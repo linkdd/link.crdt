@@ -27,13 +27,13 @@ class Flag(CRDT):
     def _check_type(self, value):
         return isinstance(value, self._py_type)
 
-    @CRDT._action
     def enable(self):
         self._mutation = 'enable'
+        self._update_vclock()
 
-    @CRDT._action
     def disable(self):
         self._mutation = 'disable'
+        self._update_vclock()
 
     def isdirty(self):
         return self._mutation is not None

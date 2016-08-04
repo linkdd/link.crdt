@@ -42,14 +42,6 @@ class CRDT(object):
         if self._context is not None:
             self._context._update_vclock()
 
-    def _action(self, func):
-        def inner(*args, **kwargs):
-            result = func(*args, **kwargs)
-            self._update_vclock()
-            return result
-
-        return inner
-
     def _post_init(self):
         pass
 

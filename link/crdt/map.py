@@ -93,10 +93,10 @@ class Map(Mapping, CRDT):
 
             return self._updates[key]
 
-    @CRDT._action
     def __delitem__(self, key):
         self._check_key(key)
         self._removes.add(key)
+        self._update_vclock()
 
     def __len__(self):
         return len(self.current)

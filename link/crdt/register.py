@@ -29,10 +29,10 @@ class Register(CRDT):
     def _check_type(self, value):
         return isinstance(value, self._py_type)
 
-    @CRDT._action
     def assign(self, value):
         self._assert_type(value)
         self._new = value
+        self._update_vclock()
 
     def __len__(self):
         return len(self.current)

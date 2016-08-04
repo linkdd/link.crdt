@@ -55,15 +55,15 @@ class Set(collections.Set, CRDT):
     def __len__(self):
         return len(self.current)
 
-    @CRDT._action
     def add(self, element):
         self._check_element(element)
         self._adds.add(element)
+        self._update_vclock()
 
-    @CRDT._action
     def discard(self, element):
         self._check_element(element)
         self._removes.add(element)
+        self._update_vclock()
 
     def isdirty(self):
         return len(self._removes | self._adds) > 0

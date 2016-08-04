@@ -27,15 +27,15 @@ class Counter(CRDT):
     def _check_type(self, value):
         return isinstance(value, self._py_type)
 
-    @CRDT._action
     def increment(self, amount=1):
         self._assert_type(amount)
         self._increment += amount
+        self._update_vclock()
 
-    @CRDT._action
     def decrement(self, amount=1):
         self._assert_type(amount)
         self._increment -= amount
+        self._update_vclock()
 
     def isdirty(self):
         return self._increment != 0
