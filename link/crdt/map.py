@@ -152,15 +152,3 @@ class Map(Mapping, CRDT):
                 cvalue[key] = self._updates[key].current
 
         return cvalue
-
-
-TYPES = {
-    cls._type_name: cls
-    for cls in [
-        Counter,
-        Flag,
-        Set,
-        Register,
-        Map
-    ]
-}

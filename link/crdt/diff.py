@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from link.crdt.map import TYPES
+from link.crdt.utils import TYPES
 from link.crdt.register import Register
 from link.crdt.counter import Counter
 from link.crdt.flag import Flag
