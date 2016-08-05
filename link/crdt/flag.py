@@ -15,6 +15,7 @@ class Flag(CRDT):
 
         crdt = cls()
         crdt._mutation = a._mutation if a._vclock >= b._vclock else b._mutation
+        crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
         return crdt
 

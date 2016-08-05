@@ -19,6 +19,7 @@ class Set(collections.Set, CRDT):
         crdt = cls()
         crdt._adds = a._adds.union(b._adds)
         crdt._removes = a._removes.union(b._removes)
+        crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
         return crdt
 

@@ -17,6 +17,7 @@ class Register(CRDT):
 
         crdt = cls()
         crdt._new = a._new if a._vclock >= b._vclock else b._new
+        crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
         return crdt
 

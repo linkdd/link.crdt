@@ -15,6 +15,7 @@ class Counter(CRDT):
 
         crdt = cls()
         crdt._increment = a._increment + b._increment
+        crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
         return crdt
 

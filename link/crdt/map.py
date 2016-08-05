@@ -1,12 +1,6 @@
 # -*-coding: utf-8 -*-
 
 from link.crdt.core import CRDT
-
-from link.crdt.register import Register
-from link.crdt.counter import Counter
-from link.crdt.flag import Flag
-from link.crdt.set import Set
-
 from collections import Mapping
 
 
@@ -38,6 +32,7 @@ class Map(Mapping, CRDT):
             if key not in a._updates:
                 crdt._updates[key] = a._updates
 
+        crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
 
         return crdt
