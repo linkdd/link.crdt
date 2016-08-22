@@ -1,22 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-from link.crdt.register import Register
-from link.crdt.counter import Counter
-from link.crdt.flag import Flag
-from link.crdt.set import Set
-from link.crdt.map import Map
-
-TYPES = {
-    cls._type_name: cls
-    for cls in [
-        Counter,
-        Flag,
-        Set,
-        Register,
-        Map
-    ]
-}
+from link.crdt.map import TYPES
 
 
 def get_crdt_type_by_name(name):

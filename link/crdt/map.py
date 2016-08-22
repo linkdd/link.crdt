@@ -1,7 +1,12 @@
 # -*-coding: utf-8 -*-
 
-from link.crdt.core import CRDT
 from collections import Mapping
+
+from link.crdt.core import CRDT
+from link.crdt.register import Register
+from link.crdt.counter import Counter
+from link.crdt.flag import Flag
+from link.crdt.set import Set
 
 
 class Map(Mapping, CRDT):
@@ -147,3 +152,15 @@ class Map(Mapping, CRDT):
                 cvalue[key] = self._updates[key].current
 
         return cvalue
+
+
+TYPES = {
+    cls._type_name: cls
+    for cls in [
+        Counter,
+        Flag,
+        Set,
+        Register,
+        Map
+    ]
+}
