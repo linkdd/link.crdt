@@ -7,6 +7,10 @@ from link.crdt.flag import Flag
 
 
 class TestFlag(UTCase):
+    def test_default(self):
+        crdt = Flag()
+        self.assertEqual(crdt.current, False)
+
     def test_enable(self):
         crdt = Flag(value=False)
 

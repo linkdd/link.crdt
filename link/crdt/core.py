@@ -14,7 +14,7 @@ class CRDT(object):
 
     @classmethod
     def _assert_mergeable(cls, a, b):
-        if not isinstance(a, cls) and not isinstance(b, cls):
+        if not isinstance(a, cls) or not isinstance(b, cls):
             raise TypeError(
                 'Supplied arguments are not {0}'.format(cls.__name__)
             )

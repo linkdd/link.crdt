@@ -7,6 +7,10 @@ from link.crdt.map import Map
 
 
 class TestMap(UTCase):
+    def test_default(self):
+        crdt = Map()
+        self.assertEqual(crdt.current, {})
+
     def test_enable(self):
         expected = {
             'a_counter': 5,
@@ -84,20 +88,40 @@ class TestMap(UTCase):
         b = Map(value={'a_counter': 5})
 
         a['a_counter'].increment(3)
+        a['b_counter'].increment(2)
         b['a_counter'].increment(3)
         b['a_counter'].decrement(2)
+        b['c_counter'].increment(2)
 
         c = Map.merge(a, b)
 
-        self.assertEqual(c.current, {'a_counter': 9})
+        self.assertEqual(c.current, {
+            'a_counter': 9,
+            'b_counter': 2,
+            'c_counter': 2
+        })
         self.assertIn('a_counter', c._updates)
-        self.assertEqual(c._vclock, 3)
+        self.assertIn('b_counter', c._updates)
+        self.assertIn('c_counter', c._updates)
+        self.assertEqual(c._vclock, 5)
         self.assertTrue(c.isdirty())
-        self.assertEqual(c.mutation(), [
+        self.assertItemsEqual(c.mutation(), [
             {
                 'update': 'a_counter',
                 'mutation': {
                     'increment': 4
+                }
+            },
+            {
+                'update': 'b_counter',
+                'mutation': {
+                    'increment': 2
+                }
+            },
+            {
+                'update': 'c_counter',
+                'mutation': {
+                    'increment': 2
                 }
             }
         ])
@@ -109,6 +133,12 @@ class TestMap(UTCase):
         with self.assertRaises(ValueError):
             Map.merge(a, b)
 
+        a = Map(value={'a_counter': 5})
+        b = Map(value={'a_counter': 6})
+
+        with self.assertRaises(ValueError):
+            Map.merge(a, b)
+
     def test_fail_type(self):
         with self.assertRaises(TypeError):
             not_dict = 42
@@ -116,6 +146,23 @@ class TestMap(UTCase):
 
         with self.assertRaises(TypeError):
             Map(value={'a_counter': 'not int'})
+
+    def test_fail_key(self):
+        m = Map()
+
+        with self.assertRaises(TypeError):
+            m['test_wrong_key']
+
+    def test_api(self):
+        m = Map(value={
+            'a_counter': 5
+        })
+
+        self.assertIn('a_counter', m)
+        self.assertEqual(len(m), 1)
+
+        d = {k: m[k].current for k in m}
+        self.assertEqual(d, m.current)
 
 
 if __name__ == '__main__':

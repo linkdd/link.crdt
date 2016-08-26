@@ -46,11 +46,6 @@ class Map(Mapping, CRDT):
                 crdt._updates[key] = suba.merge(suba, subb, context=crdt)
                 del crdt._value[key]
 
-        # complete with missing keys from a
-        for key in b._value:
-            if key not in a._value:
-                crdt._updates[key] = b._value[key]
-
         # merge a and b updates
         for key in a._updates:
             if key not in b._updates:
@@ -65,7 +60,7 @@ class Map(Mapping, CRDT):
         # complete with missing keys from a
         for key in b._updates:
             if key not in a._updates:
-                crdt._updates[key] = a._updates[key]
+                crdt._updates[key] = b._updates[key]
 
         crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()

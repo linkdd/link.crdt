@@ -7,6 +7,10 @@ from link.crdt.set import Set
 
 
 class TestSet(UTCase):
+    def test_default(self):
+        crdt = Set()
+        self.assertEqual(crdt.current, set())
+
     def test_enable(self):
         crdt = Set(value={'1', '2'})
 
@@ -58,6 +62,18 @@ class TestSet(UTCase):
 
         with self.assertRaises(TypeError):
             Set(value={42})
+
+    def test_api(self):
+        s = Set(value={'1', '2'})
+
+        self.assertIn('1', s)
+        self.assertEqual(len(s), 2)
+
+        s2 = {item for item in s}
+        self.assertEqual(s.current, s2)
+
+        with self.assertRaises(TypeError):
+            s.add(42)
 
 
 if __name__ == '__main__':

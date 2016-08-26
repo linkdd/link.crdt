@@ -7,6 +7,10 @@ from link.crdt.counter import Counter
 
 
 class TestCounter(UTCase):
+    def test_default(self):
+        crdt = Counter()
+        self.assertEqual(crdt.current, 0)
+
     def test_increment(self):
         crdt = Counter(value=5)
         self.assertEqual(crdt.current, 5)

@@ -7,6 +7,10 @@ from link.crdt.register import Register
 
 
 class TestRegister(UTCase):
+    def test_default(self):
+        crdt = Register()
+        self.assertEqual(crdt.current, '')
+
     def test_enable(self):
         crdt = Register(value='initial')
 
@@ -47,6 +51,10 @@ class TestRegister(UTCase):
         with self.assertRaises(TypeError):
             not_str = 42
             Register(value=not_str)
+
+    def test_api(self):
+        r = Register(value='hello')
+        self.assertEqual(len(r), 5)
 
 
 if __name__ == '__main__':

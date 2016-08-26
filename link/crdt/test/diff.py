@@ -50,13 +50,19 @@ class TestDiff(UTCase):
             'd_set': {'1', '2'},
             'e_map': {
                 'a_counter': 5
+            },
+            'f_map': {
+                'a_counter': 5
             }
         }
         b = {
             'a_counter': 7,
             'b_flag': False,
             'c_register': 'test2',
-            'd_set': {'2', '3'}
+            'd_set': {'2', '3'},
+            'f_map': {
+                'a_counter': 6
+            }
         }
         crdt = crdt_diff(a, b)
 
@@ -64,6 +70,7 @@ class TestDiff(UTCase):
         self.assertIn('b_flag', crdt._value)
         self.assertIn('c_register', crdt._value)
         self.assertIn('d_set', crdt._value)
+        self.assertIn('f_map', crdt._value)
         self.assertIn('e_map', crdt._removes)
         self.assertEqual(crdt.current, b)
         self.assertItemsEqual(crdt.mutation(), [
@@ -92,6 +99,17 @@ class TestDiff(UTCase):
                     'adds': {'2', '3'},
                     'removes': {'1'}
                 }
+            },
+            {
+                'update': 'f_map',
+                'mutation': [
+                    {
+                        'update': 'a_counter',
+                        'mutation': {
+                            'increment': 1
+                        }
+                    }
+                ]
             }
         ])
 
@@ -101,6 +119,10 @@ class TestDiff(UTCase):
 
         with self.assertRaises(TypeError):
             crdt_diff('str', 2)
+
+        with self.assertRaises(TypeError):
+            crdt_diff([], [])
+
 
 if __name__ == '__main__':
     main()
