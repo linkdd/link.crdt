@@ -9,14 +9,23 @@ class CRDT(object):
     _type_err_msg = 'Invalid value type'
 
     @classmethod
+    def _check_same_value(cls, a, b):
+        return a._value == b._value
+
+    @classmethod
     def _assert_mergeable(cls, a, b):
         if not isinstance(a, cls) and not isinstance(b, cls):
             raise TypeError(
                 'Supplied arguments are not {0}'.format(cls.__name__)
             )
 
+        if not cls._check_same_value(a, b):
+            raise ValueError(
+                'Supplied arguments does not have the same initial value'
+            )
+
     @classmethod
-    def merge(cls, a, b):
+    def merge(cls, a, b, context=None):
         raise NotImplementedError()
 
     def __init__(self, value=None, context=None):
@@ -45,7 +54,12 @@ class CRDT(object):
     def _post_init(self):
         pass
 
-    def _check_type(self, value):
+    @classmethod
+    def _match_py_type(cls, pytype):
+        return cls._py_type in pytype.mro()
+
+    @classmethod
+    def _check_type(cls, value):
         raise NotImplementedError()
 
     def _assert_type(self, value):

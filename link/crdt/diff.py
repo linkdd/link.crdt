@@ -57,11 +57,15 @@ class CRDTDiff(object):
         amro = set(a.__class__.mro())
         bmro = set(b.__class__.mro())
 
-        if not (amro.issubset(bmro) or bmro.issubset(amro)):
+        if any([
+            not (amro.issubset(bmro) or bmro.issubset(amro)),
+            isinstance(a, bool) and not isinstance(b, bool),
+            not isinstance(a, bool) and isinstance(b, bool)
+        ]):
             raise TypeError('Supplied arguments must be of the same type')
 
         for crdt_type in TYPES.values():
-            if isinstance(a, crdt_type._py_type):
+            if crdt_type._check_type(a):
                 crdt = crdt_type(value=a)
 
                 method = getattr(self, crdt_type._type_name)

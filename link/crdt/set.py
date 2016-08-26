@@ -13,10 +13,10 @@ class Set(collections.Set, CRDT):
     _type_err_msg = 'Sets can only be set of strings'
 
     @classmethod
-    def merge(cls, a, b):
+    def merge(cls, a, b, context=None):
         cls._assert_mergeable(a, b)
 
-        crdt = cls()
+        crdt = cls(value=a._value, context=context)
         crdt._adds = a._adds.union(b._adds)
         crdt._removes = a._removes.union(b._removes)
         crdt._vclock = max(a._vclock, b._vclock)
@@ -34,8 +34,9 @@ class Set(collections.Set, CRDT):
         if not isinstance(element, string_types):
             raise TypeError('Set elements can only be strings')
 
-    def _check_type(self, value):
-        if not isinstance(value, self._py_type):
+    @classmethod
+    def _check_type(cls, value):
+        if not isinstance(value, cls._py_type):
             return False
 
         for element in value:
@@ -71,10 +72,10 @@ class Set(collections.Set, CRDT):
 
     def mutation(self):
         return {
-            'adds': list(self._adds),
-            'removes': list(self._removes)
+            'adds': set(self._adds),
+            'removes': set(self._removes)
         }
 
     @CRDT.current.getter
     def current(self):
-        return set(self._value) + self._adds - self._removes
+        return set(self._value).union(self._adds).difference(self._removes)

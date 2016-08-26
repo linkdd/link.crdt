@@ -10,10 +10,10 @@ class Flag(CRDT):
     _type_err_msg = 'Flags can only be booleans'
 
     @classmethod
-    def merge(cls, a, b):
+    def merge(cls, a, b, context=None):
         cls._assert_mergeable(a, b)
 
-        crdt = cls()
+        crdt = cls(value=a._value, context=context)
         crdt._mutation = a._mutation if a._vclock >= b._vclock else b._mutation
         crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
@@ -25,8 +25,9 @@ class Flag(CRDT):
     def _default_value(self):
         return False
 
-    def _check_type(self, value):
-        return isinstance(value, self._py_type)
+    @classmethod
+    def _check_type(cls, value):
+        return isinstance(value, cls._py_type)
 
     def enable(self):
         self._mutation = 'enable'

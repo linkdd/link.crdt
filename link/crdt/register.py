@@ -12,10 +12,10 @@ class Register(CRDT):
     _type_err_msg = 'Registers can only be strings'
 
     @classmethod
-    def merge(cls, a, b):
+    def merge(cls, a, b, context=None):
         cls._assert_mergeable(a, b)
 
-        crdt = cls()
+        crdt = cls(value=a._value, context=context)
         crdt._new = a._new if a._vclock >= b._vclock else b._new
         crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
@@ -27,8 +27,16 @@ class Register(CRDT):
     def _default_value(self):
         return ''
 
-    def _check_type(self, value):
-        return isinstance(value, self._py_type)
+    @classmethod
+    def _match_py_type(cls, pytype):
+        return any([
+            string_type in pytype.mro()
+            for string_type in string_types
+        ])
+
+    @classmethod
+    def _check_type(cls, value):
+        return isinstance(value, cls._py_type)
 
     def assign(self, value):
         self._assert_type(value)

@@ -16,26 +16,56 @@ class Map(Mapping, CRDT):
     _type_err_msg = 'Map must be a dict with keys ending with "_{datatype}"'
 
     @classmethod
-    def merge(cls, a, b):
+    def _check_same_value(cls, a, b):
+        for key in a._value:
+            if key in b._value:
+                aval = a._value[key]
+                bval = b._value[key]
+
+                if not aval._check_same_value(aval, bval):
+                    return False
+
+            else:
+                return False
+
+        return True
+
+    @classmethod
+    def merge(cls, a, b, context=None):
         cls._assert_mergeable(a, b)
 
-        crdt = cls()
+        crdt = cls(value=a._compute_value(), context=context)
         crdt._removes = a._removes.union(b._removes)
 
+        # merge a and b values
+        for key in a._value:
+            if key in b._value:
+                suba = a._value[key]
+                subb = b._value[key]
+
+                crdt._updates[key] = suba.merge(suba, subb, context=crdt)
+                del crdt._value[key]
+
+        # complete with missing keys from a
+        for key in b._value:
+            if key not in a._value:
+                crdt._updates[key] = b._value[key]
+
+        # merge a and b updates
         for key in a._updates:
             if key not in b._updates:
-                crdt._updates[key] = a._updates
+                crdt._updates[key] = a._updates[key]
 
             else:
                 suba = a._updates[key]
                 subb = b._updates[key]
 
-                crdt._updates[key] = suba.merge(suba, subb)
+                crdt._updates[key] = suba.merge(suba, subb, context=crdt)
 
         # complete with missing keys from a
         for key in b._updates:
             if key not in a._updates:
-                crdt._updates[key] = a._updates
+                crdt._updates[key] = a._updates[key]
 
         crdt._vclock = max(a._vclock, b._vclock)
         crdt._update_vclock()
@@ -49,7 +79,8 @@ class Map(Mapping, CRDT):
     def _default_value(self):
         return dict()
 
-    def _check_key(self, key):
+    @classmethod
+    def _check_key(cls, key):
         for typename in TYPES:
             suffix = '_{0}'.format(typename)
 
@@ -62,13 +93,14 @@ class Map(Mapping, CRDT):
         datatype = key.rsplit('_', 1)[1]
         return TYPES[datatype]
 
-    def _check_type(self, value):
-        if not isinstance(value, self._py_type):
-            raise TypeError(self._type_err_msg)
+    @classmethod
+    def _check_type(cls, value):
+        if not isinstance(value, cls._py_type):
+            return False
 
         for key in value:
             try:
-                self._check_key(key)
+                cls._check_key(key)
 
             except TypeError:
                 return False
@@ -105,7 +137,7 @@ class Map(Mapping, CRDT):
         return iter(self.current)
 
     def isdirty(self):
-        return self._removes and self._updates
+        return bool(self._removes) or bool(self._updates)
 
     def _coerce_value(self, value):
         cvalue = {}
@@ -152,6 +184,12 @@ class Map(Mapping, CRDT):
                 cvalue[key] = self._updates[key].current
 
         return cvalue
+
+    def _compute_value(self):
+        return {
+            key: v.current if not isinstance(v, Map) else v._compute_value()
+            for key, v in self._value.items()
+        }
 
 
 TYPES = {

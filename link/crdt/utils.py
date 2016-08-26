@@ -10,7 +10,7 @@ def get_crdt_type_by_name(name):
 
 def get_crdt_type_by_py_type(pytype):
     for crdt_type in TYPES.values():
-        if crdt_type._py_type in pytype.mro():
+        if crdt_type._match_py_type(pytype):
             return crdt_type
 
     return None
