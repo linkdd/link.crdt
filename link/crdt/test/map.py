@@ -89,21 +89,25 @@ class TestMap(UTCase):
 
         a['a_counter'].increment(3)
         a['b_counter'].increment(2)
+        a['d_counter'].increment(1)
         b['a_counter'].increment(3)
         b['a_counter'].decrement(2)
         b['c_counter'].increment(2)
+        b['d_counter'].increment(1)
 
         c = Map.merge(a, b)
 
         self.assertEqual(c.current, {
             'a_counter': 9,
             'b_counter': 2,
-            'c_counter': 2
+            'c_counter': 2,
+            'd_counter': 2
         })
         self.assertIn('a_counter', c._updates)
         self.assertIn('b_counter', c._updates)
         self.assertIn('c_counter', c._updates)
-        self.assertEqual(c._vclock, 5)
+        self.assertIn('d_counter', c._updates)
+        self.assertEqual(c._vclock, 7)
         self.assertTrue(c.isdirty())
         self.assertItemsEqual(c.mutation(), [
             {
@@ -120,6 +124,12 @@ class TestMap(UTCase):
             },
             {
                 'update': 'c_counter',
+                'mutation': {
+                    'increment': 2
+                }
+            },
+            {
+                'update': 'd_counter',
                 'mutation': {
                     'increment': 2
                 }
@@ -152,6 +162,13 @@ class TestMap(UTCase):
 
         with self.assertRaises(TypeError):
             m['test_wrong_key']
+
+        with self.assertRaises(TypeError):
+            Map(
+                value={
+                    'wrong_key': 5
+                }
+            )
 
     def test_api(self):
         m = Map(value={
