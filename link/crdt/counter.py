@@ -29,7 +29,10 @@ class Counter(CRDT):
 
     @classmethod
     def _match_py_type(cls, pytype):
-        return cls._py_type in pytype.mro() and bool not in pytype.mro()
+        return any([
+            py_type in pytype.mro() and bool not in pytype.mro()
+            for py_type in cls._py_type
+        ])
 
     @classmethod
     def _check_type(cls, value):
