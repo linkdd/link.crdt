@@ -2,10 +2,12 @@
 
 from link.crdt.core import CRDT
 
+from six import integer_types
+
 
 class Counter(CRDT):
 
-    _py_type = int
+    _py_type = integer_types
     _type_name = 'counter'
     _type_err_msg = 'Counters can only be integers'
 
